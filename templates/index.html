@@ -1,0 +1,174 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI Network Security Analyst</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            background-color: #0a0a0a;
+            color: #00ff41;
+            font-family: 'Courier New', monospace;
+            padding: 30px;
+        }
+
+        h1 {
+            text-align: center;
+            font-size: 2rem;
+            margin-bottom: 10px;
+            color: #00ff41;
+            text-shadow: 0 0 10px #00ff41;
+        }
+
+        p.subtitle {
+            text-align: center;
+            color: #888;
+            margin-bottom: 30px;
+        }
+
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 8px;
+            color: #00ff41;
+        }
+
+        textarea {
+            width: 100%;
+            height: 200px;
+            background-color: #111;
+            color: #00ff41;
+            border: 1px solid #00ff41;
+            padding: 15px;
+            font-family: 'Courier New', monospace;
+            font-size: 0.9rem;
+            border-radius: 5px;
+            resize: vertical;
+        }
+
+        button {
+            margin-top: 15px;
+            width: 100%;
+            padding: 15px;
+            background-color: #00ff41;
+            color: #0a0a0a;
+            border: none;
+            font-size: 1rem;
+            font-weight: bold;
+            font-family: 'Courier New', monospace;
+            cursor: pointer;
+            border-radius: 5px;
+            transition: 0.3s;
+        }
+
+        button:hover {
+            background-color: #00cc33;
+            box-shadow: 0 0 15px #00ff41;
+        }
+
+        #result {
+            margin-top: 30px;
+            background-color: #111;
+            border: 1px solid #00ff41;
+            border-radius: 5px;
+            padding: 20px;
+            display: none;
+            white-space: pre-wrap;
+            line-height: 1.8;
+        }
+
+        .loading {
+            text-align: center;
+            color: #00ff41;
+            display: none;
+            margin-top: 20px;
+            animation: blink 1s infinite;
+        }
+
+        @keyframes blink {
+            0%   { opacity: 1; }
+            50%  { opacity: 0; }
+            100% { opacity: 1; }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🛡️ AI Network Security Analyst</h1>
+        <p class="subtitle">Paste your network log below and let AI detect threats</p>
+
+        <label>📋 Network Log:</label>
+        <textarea id="logInput" placeholder="Paste your network log here...
+
+Example:
+Failed password for root from 192.168.1.105 port 22 ssh2
+Failed password for root from 192.168.1.105 port 22 ssh2
+Failed password for root from 192.168.1.105 port 22 ssh2"></textarea>
+
+        <button type="button" onclick="analyzeLog(event)">🔍 ANALYZE THREATS</button>
+
+        <div class="loading" id="loading">⚡ Analyzing threats...</div>
+
+        <div id="result"></div>
+
+        <div id="severity" style="display:none; text-align:center; margin-top:20px; font-size:1.5rem;"></div>
+        
+    </div>
+
+    
+    <script>
+    async function analyzeLog(event) {
+        event.preventDefault()
+        const log = document.getElementById('logInput').value
+
+        if (!log) {
+            alert('Please paste a network log first!')
+            return
+        }
+
+        document.getElementById('loading').style.display = 'block'
+        document.getElementById('result').style.display = 'none'
+        document.getElementById('severity').style.display = 'none'
+
+        try {
+            const response = await fetch('http://127.0.0.1:5000/analyze', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ log: log })
+            })
+
+            const data = await response.json()
+            console.log(data)
+
+            // show severity
+            document.getElementById('severity').style.display = 'block'
+            document.getElementById('severity').innerText =
+                `${data.severity.color} THREAT SCORE: ${data.severity.score}/10 — ${data.severity.level}`
+
+            // show result
+            document.getElementById('result').style.display = 'block'
+            document.getElementById('result').innerText = data.analysis
+
+        } catch (error) {
+            console.log(error)
+            document.getElementById('result').style.display = 'block'
+            document.getElementById('result').innerText = '❌ Error connecting to server. Make sure Flask is running.'
+        }
+
+        document.getElementById('loading').style.display = 'none'
+    }
+    </script>
+              
+    
+</body>
+</html>
