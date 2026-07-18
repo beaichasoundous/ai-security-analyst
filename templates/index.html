@@ -105,6 +105,12 @@
 <body>
     <div class="container">
         <h1>🛡️ AI Network Security Analyst</h1>
+        <a href="/history-page" style="display:block; text-align:center; color:#888; 
+        margin-bottom:20px; text-decoration:none;">
+        📊 View Threat History
+        </a>
+        
+            
         <p class="subtitle">Paste your network log below and let AI detect threats</p>
 
         <label>📋 Network Log:</label>
@@ -116,7 +122,10 @@ Failed password for root from 192.168.1.105 port 22 ssh2
 Failed password for root from 192.168.1.105 port 22 ssh2"></textarea>
 
         <button type="button" onclick="analyzeLog(event)">🔍 ANALYZE THREATS</button>
-
+        <button type="button" onclick="resetMemory()" 
+            style="margin-top:10px; background-color:#111; color:#00ff41; border: 1px solid #00ff41;">
+            🔄 RESET MEMORY
+        </button>
         <div class="loading" id="loading">⚡ Analyzing threats...</div>
 
         <div id="result"></div>
@@ -125,49 +134,7 @@ Failed password for root from 192.168.1.105 port 22 ssh2"></textarea>
         
     </div>
 
-    
-    <script>
-    async function analyzeLog(event) {
-        event.preventDefault()
-        const log = document.getElementById('logInput').value
-
-        if (!log) {
-            alert('Please paste a network log first!')
-            return
-        }
-
-        document.getElementById('loading').style.display = 'block'
-        document.getElementById('result').style.display = 'none'
-        document.getElementById('severity').style.display = 'none'
-
-        try {
-            const response = await fetch('http://127.0.0.1:5000/analyze', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ log: log })
-            })
-
-            const data = await response.json()
-            console.log(data)
-
-            // show severity
-            document.getElementById('severity').style.display = 'block'
-            document.getElementById('severity').innerText =
-                `${data.severity.color} THREAT SCORE: ${data.severity.score}/10 — ${data.severity.level}`
-
-            // show result
-            document.getElementById('result').style.display = 'block'
-            document.getElementById('result').innerText = data.analysis
-
-        } catch (error) {
-            console.log(error)
-            document.getElementById('result').style.display = 'block'
-            document.getElementById('result').innerText = '❌ Error connecting to server. Make sure Flask is running.'
-        }
-
-        document.getElementById('loading').style.display = 'none'
-    }
-    </script>
+    <script src="/static/script.js"></script>
               
     
 </body>

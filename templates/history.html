@@ -1,0 +1,151 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Threat History</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            background-color: #0a0a0a;
+            color: #00ff41;
+            font-family: 'Courier New', monospace;
+            padding: 30px;
+        }
+
+        h1 {
+            text-align: center;
+            font-size: 2rem;
+            margin-bottom: 10px;
+            text-shadow: 0 0 10px #00ff41;
+        }
+
+        .subtitle {
+            text-align: center;
+            color: #888;
+            margin-bottom: 30px;
+        }
+
+        .container { max-width: 900px; margin: 0 auto; }
+
+        .back-btn {
+            display: block;
+            margin-bottom: 20px;
+            color: #00ff41;
+            text-decoration: none;
+            border: 1px solid #00ff41;
+            padding: 10px 20px;
+            width: fit-content;
+            border-radius: 5px;
+        }
+
+        .back-btn:hover { background-color: #00ff41; color: #0a0a0a; }
+
+        .threat-card {
+            background-color: #111;
+            border: 1px solid #00ff41;
+            border-radius: 5px;
+            padding: 20px;
+            margin-bottom: 20px;
+        }
+
+        .threat-header {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 10px;
+            color: #888;
+            font-size: 0.8rem;
+        }
+
+        .threat-score {
+            font-size: 1.2rem;
+            margin-bottom: 10px;
+        }
+
+        .threat-analysis {
+            white-space: pre-wrap;
+            line-height: 1.8;
+            font-size: 0.9rem;
+        }
+
+        .threat-log {
+            background-color: #0a0a0a;
+            padding: 10px;
+            border-radius: 5px;
+            margin-bottom: 10px;
+            font-size: 0.8rem;
+            color: #888;
+        }
+
+        #loading {
+            text-align: center;
+            padding: 50px;
+            color: #888;
+        }
+
+        .empty {
+            text-align: center;
+            color: #888;
+            padding: 50px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>📊 Threat History</h1>
+        <p class="subtitle">All detected threats from previous analyses</p>
+
+        <a href="/" class="back-btn">← Back to Analyzer</a>
+
+        <div id="loading">⚡ Loading threats...</div>
+        <div id="threats"></div>
+    </div>
+
+    <script>
+        async function loadHistory() {
+            try {
+                const response = await fetch('/api/history')
+                const data = await response.json()
+                console.log(data)
+
+                document.getElementById('loading').style.display = 'none'
+
+                const threats = data.threats
+
+                if (!threats || threats.length === 0) {
+                    document.getElementById('threats').innerHTML =
+                        '<div class="empty">No threats recorded yet.</div>'
+                    return
+                }
+
+                threats.reverse()
+
+                let html = ''
+                threats.forEach(threat => {
+                    const severity = threat.severity || { color: '⚪', level: 'UNKNOWN', score: 0 }
+                    html += `
+                    <div class="threat-card">
+                        <div class="threat-header">
+                            <span>🕐 ${threat.timestamp}</span>
+                            <span>${severity.color} ${severity.level} — ${severity.score}/10</span>
+                        </div>
+                        <div class="threat-log">📋 LOG: ${threat.log}</div>
+                        <div class="threat-analysis">${threat.analysis}</div>
+                    </div>`
+                })
+
+                document.getElementById('threats').innerHTML = html
+
+            } catch (error) {
+                console.log(error)
+                document.getElementById('loading').style.display = 'none'
+                document.getElementById('threats').innerHTML =
+                    '<div class="empty">❌ Error loading threats.</div>'
+            }
+        }
+
+        loadHistory()
+    </script>
+</body>
+</html>
