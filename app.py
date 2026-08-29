@@ -1,8 +1,9 @@
 from flask import Flask, request, jsonify, render_template
 from flask_cors import CORS
-from ai import analyze, reset_memory
+from ai import analyze,reset_memory ,analyze_with_tools
 from storage import save_threat, get_all_threats
 from security import sanitize_input, get_severity_score
+
 
 app = Flask(__name__)
 CORS(app)
@@ -41,7 +42,7 @@ def analyze_log():
             "error": "⚠️ Prompt injection attempt detected and blocked!"
         }), 400
 
-    result = analyze(clean_log)
+    result = analyze_with_tools(clean_log)
     severity = get_severity_score(result)
     save_threat(log, result, severity)
 
